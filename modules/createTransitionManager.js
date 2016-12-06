@@ -4,6 +4,7 @@ import { runEnterHooks, runChangeHooks, runLeaveHooks } from './TransitionUtils'
 import _isActive from './isActive'
 import getComponents from './getComponents'
 import matchRoutes from './matchRoutes'
+import {create as createSusanin, locationToState} from './susanin';
 
 function hasAnyProperties(object) {
   for (const p in object)
@@ -13,21 +14,10 @@ function hasAnyProperties(object) {
   return false
 }
 
-import Susanin from 'susanin';
-
 export default function createTransitionManager(history, routes) {
   let state = {}
 
-  const susanin = new Susanin();
-  routes.forEach((route) => {
-      const _route = susaninRoutes(route);
-
-      _route.forEach(function(sRoute) {
-          console.log('addRoute', sRoute);
-          susanin.addRoute(sRoute);
-      })
-
-  });
+  const susanin = createSusanin(routes);
 
   // Signature should be (location, indexOnly), but needs to support (path,
   // query, indexOnly)
@@ -42,27 +32,19 @@ export default function createTransitionManager(history, routes) {
   let partialNextState
 
   function match(location, callback) {
-    console.log('createTransitionManager START', location);
     if (partialNextState && partialNextState.location === location) {
       // Continue from where we left off.
       finishMatch(partialNextState, callback)
     } else {
-        var route = susanin.findFirst(location.pathname);
-        if (route) {
-            console.log('createTransitionManager match', route[0].getData(), route[1]);
-            const nextState = {
-                routes: getRouteDataFromSusanin(route[0]),
-                params: {}
-            };
-            finishMatch({ ...nextState, location }, callback)
-        } else {
-            console.log('createTransitionManager', 'NO MATCH');
-          callback();
-        }
+      const nextState = locationToState(susanin, location);
+      if (nextState) {
+        finishMatch({ ...nextState, location }, callback)
+      } else {
+        callback();
+      }
 
-        /*
+      /*
       matchRoutes(routes, location, function (error, nextState) {
-        console.log('matchRoutes ------->', error, nextState);
         if (error) {
           callback(error)
         } else if (nextState) {
@@ -285,71 +267,4 @@ export default function createTransitionManager(history, routes) {
     listenBeforeLeavingRoute,
     listen
   }
-}
-
-function susaninRoutes(parentRoute) {
-    console.log('susaninRoutes', 'parentRoute', parentRoute);
-    //TODO: recursive
-    if (parentRoute.childRoutes) {
-        const childRoutes = parentRoute.childRoutes.map(function(route) {
-            const parentPath = parentRoute.path || '/';
-            const pattern = (parentPath + '/' + route.path).replace(/\/\//g, '/');
-            return {
-                name: route.name,
-                pattern: removeDoubleSlash(pattern),
-                data: {
-                    ...route.data,
-                    route,
-                    parentRoute
-                }
-            };
-        });
-        if (parentRoute.indexRoute) {
-            childRoutes.unshift({
-                name: parentRoute.indexRoute.name,
-                pattern: parentRoute.indexRoute.path || parentRoute.path,
-                data: {
-                    route: parentRoute.indexRoute,
-                    parentRoute
-                }
-            })
-        }
-        return childRoutes;
-    } else {
-      return [susaninRoute(parentRoute)];
-    }
-}
-
-function susaninRoute(route) {
-    return {
-        name: route.name,
-        pattern: route.path,
-        data: {
-            ...route.data,
-            route
-        }
-    };
-}
-
-function getRouteDataFromSusanin(route) {
-    const data = route.getData();
-    const result = [];
-    if (data.parentRoute) {
-      // TODO: recursive
-      result.push(data.parentRoute);
-    }
-    result.push(data.route);
-    if (data.route.indexRoute) {
-        result.push(data.route.indexRoute);
-    }
-
-    return result;
-}
-
-function removeDoubleSlash(string) {
-    const newString = string.replace('//', '/');
-    if (newString !== string) {
-        return removeDoubleSlash(newString);
-    }
-    return newString;
 }
