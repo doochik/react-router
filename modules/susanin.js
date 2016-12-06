@@ -72,6 +72,14 @@ function reactRoutesToSusanin(result, routes, parentRoute) {
 
         const indexRoute = route.indexRoute;
         if (indexRoute) {
+            const pattern = indexRoute.path || route.path;
+            if (!pattern) {
+                // FIXME:
+                // <Route path="foo">
+                //   <Route component="MyComp">
+                //      <IndexRoute>
+                return;
+            }
             result.push({
                 name: indexRoute.name,
                 pattern: preparePattern(indexRoute.path || route.path),
