@@ -47,7 +47,7 @@ export default function createTransitionManager(history, routes) {
       // Continue from where we left off.
       finishMatch(partialNextState, callback)
     } else {
-        // TODO: callback(error) ?
+        var route = susanin.findFirst(location.pathname);
         if (route) {
             console.log('createTransitionManager match', route[0].getData(), route[1]);
             const nextState = {
