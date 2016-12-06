@@ -289,10 +289,13 @@ export default function createTransitionManager(history, routes) {
 }
 
 function susaninRoutes(parentRoute) {
+    console.log('susaninRoutes', 'parentRoute', parentRoute);
     //TODO: recursive
     if (parentRoute.childRoutes) {
         return parentRoute.childRoutes.map(function(route) {
-            const pattern = (parentRoute.path + '/' + route.path).replace(/\/\//g, '/');
+            const parentPath = parentRoute.path || '/';
+            const pattern = (parentPath + '/' + route.path).replace(/\/\//g, '/');
+            console.log('susaninRoutes', 'parrent', (parentPath + '/' + route.path), '->', pattern);
             return {
                 name: route.name,
                 pattern: pattern,
