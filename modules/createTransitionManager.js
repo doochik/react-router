@@ -295,10 +295,9 @@ function susaninRoutes(parentRoute) {
         return parentRoute.childRoutes.map(function(route) {
             const parentPath = parentRoute.path || '/';
             const pattern = (parentPath + '/' + route.path).replace(/\/\//g, '/');
-            console.log('susaninRoutes', 'parrent', (parentPath + '/' + route.path), '->', pattern);
             return {
                 name: route.name,
-                pattern: pattern,
+                pattern: removeDoubleSlash(pattern),
                 data: {
                     ...route.data,
                     route,
@@ -332,4 +331,12 @@ function getRouteDataFromSusanin(route) {
     result.push(data.route);
 
     return result;
+}
+
+function removeDoubleSlash(string) {
+    const newString = string.replace('//', '/');
+    if (newString !== string) {
+        return removeDoubleSlash(newString);
+    }
+    return newString;
 }
