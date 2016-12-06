@@ -15,6 +15,7 @@ describe('server rendering', function () {
       return (
         <div className="App">
           <h1>App</h1>
+          <Link to="/" activeClassName="index-is-active">Index</Link>{' '}
           <Link to="/about" activeClassName="about-is-active">About</Link>{' '}
           <Link to="/dashboard" activeClassName="dashboard-is-active">Dashboard</Link>
           <div>
@@ -56,6 +57,17 @@ describe('server rendering', function () {
     }
   }
 
+  class Index extends Component {
+    render() {
+      return (
+        <div className="Index">
+          <h1>Index</h1>
+          <Link to="/" activeClassName="index-is-active">Index</Link>
+        </div>
+      )
+    }
+  }
+
   const DashboardRoute = {
     name: 'dashboard',
     path: 'dashboard',
@@ -84,9 +96,15 @@ describe('server rendering', function () {
     }
   }
 
+  const IndexRoute = {
+    name: 'index',
+    component: Index
+  }
+
   const routes = {
     name: 'root',
     path: '/',
+    indexRoute: IndexRoute,
     component: App,
     childRoutes: [ DashboardRoute, AboutRoute, RedirectRoute, AsyncRoute ]
   }

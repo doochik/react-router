@@ -52,8 +52,7 @@ export default function createTransitionManager(history, routes) {
             console.log('createTransitionManager match', route[0].getData(), route[1]);
             const nextState = {
                 routes: getRouteDataFromSusanin(route[0]),
-                params: {},
-                location: location
+                params: {}
             };
             finishMatch({ ...nextState, location }, callback)
         } else {
@@ -292,7 +291,7 @@ function susaninRoutes(parentRoute) {
     console.log('susaninRoutes', 'parentRoute', parentRoute);
     //TODO: recursive
     if (parentRoute.childRoutes) {
-        return parentRoute.childRoutes.map(function(route) {
+        const childRoutes = parentRoute.childRoutes.map(function(route) {
             const parentPath = parentRoute.path || '/';
             const pattern = (parentPath + '/' + route.path).replace(/\/\//g, '/');
             return {
@@ -304,7 +303,18 @@ function susaninRoutes(parentRoute) {
                     parentRoute
                 }
             };
-        })
+        });
+        if (parentRoute.indexRoute) {
+            childRoutes.unshift({
+                name: parentRoute.indexRoute.name,
+                pattern: parentRoute.indexRoute.path || parentRoute.path,
+                data: {
+                    route: parentRoute.indexRoute,
+                    parentRoute
+                }
+            })
+        }
+        return childRoutes;
     } else {
       return [susaninRoute(parentRoute)];
     }
