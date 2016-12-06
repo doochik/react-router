@@ -1,6 +1,7 @@
 export function createRouterObject(history, transitionManager, state) {
   const router = {
     ...history,
+    susanin: transitionManager.susanin,
     setRouteLeaveHook: transitionManager.listenBeforeLeavingRoute,
     isActive: transitionManager.isActive
   }

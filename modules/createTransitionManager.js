@@ -339,6 +339,9 @@ function getRouteDataFromSusanin(route) {
       result.push(data.parentRoute);
     }
     result.push(data.route);
+    if (data.route.indexRoute) {
+        result.push(data.route.indexRoute);
+    }
 
     return result;
 }
