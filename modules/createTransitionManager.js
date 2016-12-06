@@ -13,8 +13,21 @@ function hasAnyProperties(object) {
   return false
 }
 
+import Susanin from 'susanin';
+
 export default function createTransitionManager(history, routes) {
   let state = {}
+
+  const susanin = new Susanin();
+  routes.forEach((route) => {
+      const _route = susaninRoutes(route);
+
+      _route.forEach(function(sRoute) {
+          console.log('addRoute', sRoute);
+          susanin.addRoute(sRoute);
+      })
+
+  });
 
   // Signature should be (location, indexOnly), but needs to support (path,
   // query, indexOnly)
@@ -29,11 +42,28 @@ export default function createTransitionManager(history, routes) {
   let partialNextState
 
   function match(location, callback) {
+    console.log('createTransitionManager START', location);
     if (partialNextState && partialNextState.location === location) {
       // Continue from where we left off.
       finishMatch(partialNextState, callback)
     } else {
+        // TODO: callback(error) ?
+        if (route) {
+            console.log('createTransitionManager match', route[0].getData(), route[1]);
+            const nextState = {
+                routes: getRouteDataFromSusanin(route[0]),
+                params: {},
+                location: location
+            };
+            finishMatch({ ...nextState, location }, callback)
+        } else {
+            console.log('createTransitionManager', 'NO MATCH');
+          callback();
+        }
+
+        /*
       matchRoutes(routes, location, function (error, nextState) {
+        console.log('matchRoutes ------->', error, nextState);
         if (error) {
           callback(error)
         } else if (nextState) {
@@ -42,6 +72,7 @@ export default function createTransitionManager(history, routes) {
           callback()
         }
       })
+      */
     }
   }
 
@@ -249,9 +280,61 @@ export default function createTransitionManager(history, routes) {
   }
 
   return {
+    susanin,
     isActive,
     match,
     listenBeforeLeavingRoute,
     listen
   }
+}
+
+function susaninRoutes(parentRoute) {
+    //TODO: recursive
+    if (parentRoute.childRoutes) {
+        return parentRoute.childRoutes.map(function(route) {
+            if (!route.name) {
+                throw new Error(`Route "${route.path}" hasn't "name" prop in declaration!"`)
+            }
+
+            const pattern = (parentRoute.path + '/' + route.path).replace(/\/\//g, '/');
+            return {
+                name: route.name,
+                pattern: pattern,
+                data: {
+                    ...route.data,
+                    route,
+                    parentRoute
+                }
+            };
+        })
+    } else {
+      return [susaninRoute(parentRoute)];
+    }
+}
+
+function susaninRoute(route) {
+    if (!route.name) {
+      throw new Error(`Route "${route.path}" hasn't "name" prop in declaration!"`)
+    }
+
+    return {
+        name: route.name,
+        pattern: route.path,
+        data: {
+            ...route.data,
+            route
+        }
+    };
+}
+
+function getRouteDataFromSusanin(route) {
+    const data = route.getData();
+    const result = [];
+    if (data.parentRoute) {
+      // TODO: recursive
+      result.push(data.parentRoute);
+    }
+    result.push(data.route);
+
+    return result;
 }

@@ -16,6 +16,7 @@ import { createRouterObject } from './RouterUtils'
  * server-side rendering with async routes.
  */
 function match({ history, routes, location, ...options }, callback) {
+  console.log('TOP match START', routes, location, options);
   invariant(
     history || location,
     'match needs a history or a location'
@@ -35,6 +36,7 @@ function match({ history, routes, location, ...options }, callback) {
   }
 
   transitionManager.match(location, (error, redirectLocation, nextState) => {
+    console.log('transitionManager.match END', error, redirectLocation, nextState);
     let renderProps
 
     if (nextState) {

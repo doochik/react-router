@@ -57,30 +57,35 @@ describe('server rendering', function () {
   }
 
   const DashboardRoute = {
-    path: '/dashboard',
+    name: 'dashboard',
+    path: 'dashboard',
     component: Dashboard
   }
 
   const AboutRoute = {
-    path: '/about',
+    name: 'about',
+    path: 'about',
     component: About
   }
 
   const RedirectRoute = {
-    path: '/company',
+    name: 'company',
+    path: 'company',
     onEnter(nextState, replace) {
       replace('/about')
     }
   }
 
   const AsyncRoute = {
-    path: '/async',
+    name: 'async',
+    path: 'async',
     getComponent(location, cb) {
       setTimeout(() => cb(null, Async))
     }
   }
 
   const routes = {
+    name: 'root',
     path: '/',
     component: App,
     childRoutes: [ DashboardRoute, AboutRoute, RedirectRoute, AsyncRoute ]
