@@ -52,6 +52,10 @@ function collectParents(route, result = []) {
 }
 
 function reactRoutesToSusanin(result, routes, parentRoute) {
+    // FIXME: parentPath recursive concat
+    // <Route path="foo">
+    //   <Route path="bar">
+    //      <Route path="biz">
     routes.forEach(function(route) {
         if (route.childRoutes) {
             result.push(...reactRoutesToSusanin(result, route.childRoutes, Object.assign({}, route, {parentRoute: parentRoute})));
