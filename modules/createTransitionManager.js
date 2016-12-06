@@ -292,10 +292,6 @@ function susaninRoutes(parentRoute) {
     //TODO: recursive
     if (parentRoute.childRoutes) {
         return parentRoute.childRoutes.map(function(route) {
-            if (!route.name) {
-                throw new Error(`Route "${route.path}" hasn't "name" prop in declaration!"`)
-            }
-
             const pattern = (parentRoute.path + '/' + route.path).replace(/\/\//g, '/');
             return {
                 name: route.name,
@@ -313,10 +309,6 @@ function susaninRoutes(parentRoute) {
 }
 
 function susaninRoute(route) {
-    if (!route.name) {
-      throw new Error(`Route "${route.path}" hasn't "name" prop in declaration!"`)
-    }
-
     return {
         name: route.name,
         pattern: route.path,
