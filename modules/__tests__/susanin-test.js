@@ -15,10 +15,17 @@ describe('susanin', function() {
         component: 'AppSection1Page2'
     };
 
+    const route_AppSection2Page1SubPage1 = {
+        name: 'AppSection2Page1SubPage1',
+        path: '/subpage1/',
+        component: 'AppSection2Page1SubPage1'
+    };
+
     const route_AppSection2Page1 = {
         name: 'AppSection2Page1',
         path: '/page1/',
-        component: 'AppSection2Page1'
+        component: 'AppSection2Page1',
+        childRoutes: [route_AppSection2Page1SubPage1]
     };
 
     const route_AppSection2Page2 = {
@@ -151,6 +158,17 @@ describe('susanin', function() {
             }).toEqual({
                 routes: ['App', 'AppSection1', 'AppSection1Page2'],
                 params: {id: 'foo'}
+            });
+        });
+
+        it('/section2/page1/subpage1/', function() {
+            const state = locationToState(this.susanin, {pathname: '/section2/page1/subpage1/'});
+            expect({
+                routes: extractComponents(state.routes),
+                params: state.params
+            }).toEqual({
+                routes: ['App', 'AppSection2', 'AppSection2Page1', 'AppSection2Page1SubPage1'],
+                params: {}
             });
         });
     });

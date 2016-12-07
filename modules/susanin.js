@@ -2,17 +2,7 @@ import Susanin from 'susanin';
 
 export function create(routes) {
     const susanin = new Susanin();
-    /*
-    routes.forEach((reactRoute) => {
-        const susaninRoute = susaninRoutes(reactRoute);
 
-        susaninRoute.forEach(function(sRoute) {
-            console.log('susanin.addRoute', sRoute);
-            susanin.addRoute(sRoute);
-        })
-
-    });
-    */
     const result = [];
     reactRoutesToSusanin(result, routes);
     result.forEach((route) => susanin.addRoute(route));
@@ -52,17 +42,13 @@ function collectParents(route, result = []) {
 }
 
 function reactRoutesToSusanin(result, routes, parentRoute) {
-    // FIXME: parentPath recursive concat
-    // <Route path="foo">
-    //   <Route path="bar">
-    //      <Route path="biz">
     routes.forEach(function(route) {
         if (route.childRoutes) {
             result.push(...reactRoutesToSusanin(result, route.childRoutes, Object.assign({}, route, {parentRoute: parentRoute})));
         }
 
         if (parentRoute) {
-            const parentPath = parentRoute.path || '/';
+            const parentPath = collectParentRoute(parentRoute);
             result.push({
                 name: route.name,
                 pattern: preparePattern(parentPath + '/' + route.path),
@@ -94,6 +80,14 @@ function reactRoutesToSusanin(result, routes, parentRoute) {
             })
         }
     });
+}
+
+function collectParentRoute(parentRoute) {
+    const path = parentRoute.path || '/';
+    if (parentRoute.parentRoute) {
+        return collectParentRoute(parentRoute.parentRoute) + path;
+    }
+    return path;
 }
 
 function preparePattern(reactPath) {
